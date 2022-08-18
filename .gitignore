@@ -10,3 +10,12 @@
 *.egg-info/
 .vscode/
 sandbox/
+examples/.ipynb_checkpoints/FUCONE-checkpoint.ipynb
+.idea/inspectionProfiles/Project_Default.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/pyRiemann.iml
+.idea/vcs.xml
+examples/.ipynb_checkpoints/FUCONE_portable-checkpoint.ipynb
+examples/results.csv
