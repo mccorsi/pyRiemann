@@ -19,20 +19,29 @@ import os
 from mne import get_config, set_config, set_log_level, EpochsArray
 from mne.connectivity import spectral_connectivity
 from mne.connectivity import envelope_correlation
+from mne.viz import plot_connectivity_circle
 from moabb.evaluations.base import BaseEvaluation
 from scipy import stats as spstats
+
+
+from time import time
+import numpy as np
+from mne.epochs import BaseEpochs
 
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from sklearn.base import clone
 from sklearn.preprocessing import LabelEncoder
-from time import time
-import numpy as np
-from mne.epochs import BaseEpochs
-from sklearn.metrics import get_scorer
+from sklearn.covariance import ledoit_wolf
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import get_scorer, balanced_accuracy_score, roc_auc_score, cohen_kappa_score
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import StackingClassifier
 
 from pyriemann.classification import FgMDM
 from pyriemann.estimation import Coherences
 
+import matplotlib.pyplot as plt
 
 def _compute_fc_subtrial(epoch, delta=1, ratio=0.5, method="coh", fmin=8, fmax=35):
     """Compute single trial functional connectivity (FC)
