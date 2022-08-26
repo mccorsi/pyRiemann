@@ -30,7 +30,7 @@ from pyriemann.classification import FgMDM
 from pyriemann.estimation import Covariances
 from pyriemann.spatialfilters import CSP
 
-# from pyriemann.tangentspace import TangentSpace
+from pyriemann.tangentspace import TangentSpace
 
 from sklearn.ensemble import StackingClassifier
 from sklearn.linear_model import LogisticRegression
@@ -56,7 +56,8 @@ from coherence_helpers import (
 tmin, tmax = 1.0, 2.0
 event_id = dict(hands=2, feet=3)
 subject = 7
-runs = [6, 10, 14]  # motor imagery: hands vs feet
+# runs = [6, 10, 14]  # motor imagery: hands vs feet
+runs = [4, 8]  # motor imagery: left vs right hand ,
 
 raw_files = [read_raw_edf(f, preload=True)
              for f in eegbci.load_data(subject, runs)]
@@ -111,8 +112,8 @@ step_csp = [
     ("optsvm", GridSearchCV(SVC(), param_svm, cv=3)),
 ]
 
-# step_mdm = [("cov", Covariances(estimator="lwf")),
-#             ("fgmdm", FgMDM(metric="riemann", tsupdate=False))]
+step_mdm = [("cov", Covariances(estimator="lwf")),
+            ("fgmdm", FgMDM(metric="riemann", tsupdate=False))]
 
 # Covariance-based Riemannian geometry
 param_lr = {
@@ -121,17 +122,17 @@ param_lr = {
     "intercept_scaling": 1000.0,
     "solver": "saga",
 }
-# step_cov = [("cov", Covariances(estimator="lwf")),
-#             ("tg", TangentSpace(metric="riemann")),
-#             ("LogistReg", LogisticRegression(**param_lr))]
+step_cov = [("cov", Covariances(estimator="lwf")),
+            ("tg", TangentSpace(metric="riemann")),
+            ("LogistReg", LogisticRegression(**param_lr))]
 
 # Functional connectivity-based Riemannian geometry
 param_ft = {"fmin": fmin, "fmax": fmax, "fs": fs}
-# step_fc = [("spd", EnsureSPD()),
-#            ("tg", TangentSpace(metric="riemann")),
-#            ("LogistReg", LogisticRegression(**param_lr))]
 step_fc = [("spd", EnsureSPD()),
-           ("fgmdm", FgMDM(metric="riemann", tsupdate=False))]
+           ("tg", TangentSpace(metric="riemann")),
+           ("LogistReg", LogisticRegression(**param_lr))]
+# step_fc = [("spd", EnsureSPD()),
+#            ("fgmdm", FgMDM(metric="riemann", tsupdate=False))]
 
 
 ###############################################################################
@@ -149,12 +150,12 @@ ppl_fc, ppl_ens, ppl_baseline = {}, {}, {}
 
 # baseline pipeline
 ppl_baseline["CSP+optSVM"] = Pipeline(steps=step_csp)
-# ppl_baseline["FgMDM"] = Pipeline(steps=step_mdm)
+ppl_baseline["FgMDM"] = Pipeline(steps=step_mdm)
 
 # functionnal connectivity pipeline
 for sm in spectral_met:
-    # pname = sm + "+elasticnet"
-    pname = sm + "+fgmdm"
+    pname = sm + "+elasticnet"
+    # pname = sm + "+fgmdm"
     if sm == "cov":
         ppl_fc[pname] = Pipeline(
             steps=[("cov", Covariances(estimator="lwf"))] + step_fc
@@ -188,7 +189,7 @@ results = pd.DataFrame(results)
 #
 
 list_fc_ens = ["ensemble", "CSP+optSVM", "FgMDM"] + [
-    sm + "+fgmdm" for sm in spectral_met
+    sm + "+elasticnet" for sm in spectral_met
 ]
 
 g = sns.catplot(
