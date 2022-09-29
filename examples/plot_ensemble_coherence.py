@@ -21,11 +21,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-# from mne import set_log_level as mne_log
-# from moabb.datasets import Cho2017
-# from moabb.paradigms import LeftRightImagery
-# from moabb.utils import set_log_level as moabb_log
-
 from pyriemann.classification import FgMDM
 from pyriemann.estimation import Covariances
 from pyriemann.spatialfilters import CSP
@@ -145,8 +140,6 @@ filterwarnings(action="ignore", category=ConvergenceWarning)
 dataset_res = list()
 
 ppl_fc, ppl_ens, ppl_baseline = {}, {}, {}
-# paradigm = LeftRightImagery(fmin=fmin, fmax=fmax)
-# gd = GetData(paradigm, dataset, subject)
 
 # baseline pipeline
 ppl_baseline["CSP+optSVM"] = Pipeline(steps=step_csp)
